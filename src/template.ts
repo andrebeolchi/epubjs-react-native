@@ -5,8 +5,8 @@ export default `
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EPUB.js</title>
-    <script id="jszip"></script>
-    <script id="epubjs"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 
     <style type="text/css">
       body {
@@ -59,21 +59,13 @@ export default `
       book.ready
         .then(async function () {
           if (initialLocations) {
-            return await book.locations.load(initialLocations);
-          }
+            book.locations.load(initialLocations);
+          } else await book.locations.generate(1600);
 
-          book.locations.generate(1600).then(function () {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: "onLocationsReady",
-              epubKey: book.key(),
-              locations: book.locations.save(),
-            }));
-          });
-        })
-        .then(function () {
           var displayed = rendition.display();
 
           displayed.then(function () {
+            var viewer = document.getElementById("viewer");
             var currentLocation = rendition.currentLocation();
 
             window.ReactNativeWebView.postMessage(JSON.stringify({
@@ -122,6 +114,12 @@ export default `
               })
             );
           });
+          
+          window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: "onLocationsReady",
+            epubKey: book.key(),
+            locations: book.locations.save(),
+          }));
 
           book.loaded.navigation.then(function (toc) {
             window.ReactNativeWebView.postMessage(JSON.stringify({

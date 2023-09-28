@@ -57,9 +57,9 @@ export default `
       window.ReactNativeWebView.postMessage(JSON.stringify({ type: "onStarted" }));
 
       book.ready
-        .then(function () {
+        .then(async function () {
           if (initialLocations) {
-            return book.locations.load(initialLocations);
+            return await book.locations.load(initialLocations);
           }
 
           book.locations.generate(1600).then(function () {
